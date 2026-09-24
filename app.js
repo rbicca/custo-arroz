@@ -1,11 +1,8 @@
 (function () {
   'use strict';
 
-  // v4: Funrural é % por dentro e CDO é R$ fixo por saco — valores antigos não servem.
-  const STORAGE_KEY = 'custoArroz.v4';
-
   // Mostrada no rodapé do Início. Aumentar a cada publicação, junto com a de sw.js.
-  const VERSAO = '1.1';
+  const VERSAO = '1.2';
 
   // Valores iniciais = os da planilha (versão de 24/09/2026).
   const DEFAULTS = {
@@ -58,17 +55,25 @@
   let ajustesTab = 'compra';
   let kp = null; // teclado aberto: { path, txt, fresh }
 
+  // Carrega os valores guardados (convertendo de versões antigas, ver dados.js).
+  // Se vieram de uma chave antiga, grava na chave nova e apaga as antigas.
   function load() {
-    const s = JSON.parse(JSON.stringify(DEFAULTS));
-    try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-      if (saved) for (const k of Object.keys(s)) Object.assign(s[k], saved[k] || {});
-    } catch (e) { /* sem armazenamento: segue com os valores da planilha */ }
-    return s;
+    const ler = (chave) => {
+      try { return localStorage.getItem(chave); } catch (e) { return null; }
+    };
+    const { dados, origem } = Dados.carregar(ler, DEFAULTS);
+    if (origem !== 'atual') {
+      try {
+        localStorage.setItem(Dados.CHAVE, JSON.stringify(dados));
+        Dados.CHAVES_ANTIGAS.forEach((c) => localStorage.removeItem(c));
+      } catch (e) { /* sem armazenamento: segue só com a memória */ }
+    }
+    return dados;
   }
   function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* ignora */ }
+    try { localStorage.setItem(Dados.CHAVE, JSON.stringify(state)); } catch (e) { /* ignora */ }
   }
+  function valoresIniciais() { return Dados.carregar(() => null, DEFAULTS).dados; }
   // Caminhos como 'compra.preco' ou 'tipos.3.inteiro'.
   function parent(path) {
     const keys = path.split('.');
@@ -348,7 +353,7 @@
       case 'usar-compra': state.venda.custoKg = null; save(); render(); break;
       case 'reset':
         if (confirm('Voltar todos os valores para os valores iniciais?')) {
-          state = JSON.parse(JSON.stringify(DEFAULTS)); save(); render();
+          state = valoresIniciais(); save(); render();
         }
         break;
     }

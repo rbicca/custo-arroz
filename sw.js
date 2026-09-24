@@ -5,7 +5,7 @@
  * que são iguais). Mudar este arquivo é o que faz o celular baixar a versão
  * nova; o app então mostra "Nova versão disponível".
  */
-const VERSAO = '1.1';
+const VERSAO = '1.2';
 const CACHE = 'custo-arroz-' + VERSAO;
 
 const ARQUIVOS = [
@@ -13,6 +13,7 @@ const ARQUIVOS = [
   'index.html',
   'styles.css',
   'calc.js',
+  'dados.js',
   'app.js',
   'manifest.webmanifest',
   'fonts/atkinson-400.woff2',

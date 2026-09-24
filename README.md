@@ -23,13 +23,15 @@ No teclado grande dá para usar o teclado do computador: números, vírgula, Bac
 
 ```bash
 node test-calc.js
+node test-dados.js
 ```
 
-Confere as contas contra os valores da planilha e se a versão do `app.js` e do `sw.js` são iguais.
+- `test-calc.js` confere as contas contra os valores da planilha e se a versão do `app.js` e do `sw.js` são iguais.
+- `test-dados.js` confere como os valores guardados são carregados, validados e convertidos entre versões.
 
 ## Publicar uma versão nova
 
-1. Aumente `VERSAO` em **`app.js` e `sw.js`** (os dois iguais) e rode `node test-calc.js`.
+1. Aumente `VERSAO` em **`app.js` e `sw.js`** (os dois iguais) e rode os dois testes.
 2. Envie os arquivos alterados ao repositório (branch `master`). Arquivo novo que o app precise offline também entra na lista `ARQUIVOS` do `sw.js`.
 3. Em até uns 10 minutos, quem abrir o app vê o aviso **"Nova versão disponível — toque aqui para atualizar"**. O número novo aparece no rodapé do Início.
 
@@ -38,13 +40,17 @@ Confere as contas contra os valores da planilha e se a versão do `app.js` e do 
 | Arquivo | O que tem |
 |---|---|
 | `calc.js` | Fórmulas da planilha, funções puras |
-| `app.js` | Telas, navegação, teclado grande, valores salvos no aparelho, aviso de versão nova |
+| `app.js` | Telas, navegação, teclado grande, aviso de versão nova |
+| `dados.js` | Valores guardados no aparelho: carregar, validar e converter entre versões |
 | `sw.js` | Service worker: guarda o app no aparelho para funcionar sem internet |
 | `styles.css` | Visual (tamanhos grandes para leitura fácil) |
 | `fonts/` | Fonte Atkinson Hyperlegible (licença SIL OFL em `fonts/OFL.txt`) |
 | `manifest.webmanifest`, `icon-*.png` | Nome, ícones e modo tela cheia do app instalado |
 | `test-calc.js` | Conferência das contas e da versão |
+| `test-dados.js` | Conferência do carregamento e da conversão dos valores guardados |
 
 ## Dados
 
-Os valores digitados ficam guardados **só naquele aparelho** (localStorage): não passam para outro celular e não têm cópia de segurança. Apagar os dados do site nos ajustes do celular apaga os valores.
+Os valores digitados ficam guardados **só naquele aparelho** (localStorage, chave `custoArroz`): não passam para outro celular e não têm cópia de segurança. Apagar os dados do site nos ajustes do celular apaga os valores.
+
+**Nunca zere os valores do cliente numa versão nova.** Campo novo recebe o valor inicial sozinho. Se um campo mudar de nome ou de significado, aumente `FORMATO` em `dados.js` e escreva a conversão em `CONVERSOES` (há um exemplo no começo do arquivo), com um teste em `test-dados.js`.
