@@ -206,7 +206,7 @@
         ${stepper('comparar.frete', 'por saco')}
         <div class="result" aria-live="polite">
           <span class="result-label">Pode pagar até</span>
-          <span class="result-value">${ok ? money(r.preco) : '—'}</span>
+          <span class="result-value${r.preco >= 1000 ? ' long' : ''}">${ok ? money4(r.preco) : '—'}</span>
           <span class="result-note">por saco de 50 kg${ok ? `<br>${money(Math.abs(d))} ${d < 0 ? 'a menos' : 'a mais'} que o lote comprado` : ''}</span>
         </div>`;
     },
