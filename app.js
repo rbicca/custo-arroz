@@ -1,12 +1,12 @@
 (function () {
   'use strict';
 
-  // v3: CDO é % por dentro e Funrural é R$ fixo por saco — valores antigos não servem.
-  const STORAGE_KEY = 'custoArroz.v3';
+  // v4: Funrural é % por dentro e CDO é R$ fixo por saco — valores antigos não servem.
+  const STORAGE_KEY = 'custoArroz.v4';
 
   // Valores iniciais = os da planilha (versão de 24/09/2026).
   const DEFAULTS = {
-    taxas: { funrural: 0.93, comissao: 1, cdo: 1.65, frete: 4.5, custoQbr: 1.3, embalagem: 4.5, icms: 2.5, credito: 1, despesa: 0, freteFardo: 14, margem: 88 },
+    taxas: { funrural: 1.65, comissao: 1, cdo: 0.93, frete: 4.5, custoQbr: 1.3, embalagem: 4.5, icms: 2.5, credito: 1, despesa: 0, freteFardo: 14, margem: 88 },
     compra: { inteiro: 65, quebrado: 10, preco: 86.5, vendaQ: 0.3 },
     comparar: { inteiro: 60, quebrado: 12, frete: 3.4 },
     venda: { custoKg: null }, // null = usa o custo calculado na compra
@@ -37,9 +37,9 @@
     'comparar.quebrado': { ...PCT, label: 'Quebrado' },
     'comparar.frete': { ...RS, label: 'Frete', help: 'em reais, por saco' },
     'venda.custoKg': { ...RS, dec: 4, step: 0.01, label: 'Custo do kg inteiro', help: 'em reais, por kg' },
-    'taxas.funrural': { ...RS, label: 'Funrural', sub: 'R$ por saco' },
+    'taxas.funrural': { ...PCT, step: 0.1, max: 99, label: 'Funrural', sub: 'em %, calculado por dentro' },
     'taxas.comissao': { ...PCT, step: 0.1, label: 'Comissão', sub: 'em % do preço do saco' },
-    'taxas.cdo': { ...PCT, step: 0.1, max: 99, label: 'CDO', sub: 'em %, calculado por dentro' },
+    'taxas.cdo': { ...RS, label: 'CDO', sub: 'R$ por saco' },
     'taxas.frete': { ...RS, label: 'Frete', sub: 'R$ por saco' },
     'taxas.custoQbr': { ...RS, label: 'Custo do quebrado', sub: 'R$ por kg' },
     'taxas.embalagem': { ...RS, label: 'Embalagem', sub: 'R$ por fardo' },
@@ -88,6 +88,7 @@
     return n.toLocaleString('pt-BR', { minimumFractionDigits: min == null ? max : min, maximumFractionDigits: max });
   }
   const money = (n) => 'R$ ' + fmt(n, 2);
+  const money4 = (n) => 'R$ ' + fmt(n, 4);
   function fieldText(path, v) {
     const f = FIELDS[path];
     return f.unit === 'R$' ? fmt(v, f.dec) : fmt(v, f.dec, 0);
@@ -174,13 +175,13 @@
         <h1>Como chegamos no custo</h1>
         ${rows([
           { label: 'Preço do saco', sub: '50 kg de arroz em casca', value: money(c.preco) },
-          { label: '+ Funrural', sub: 'valor fixo por saco', value: money(r.funrural) },
-          { label: '+ Comissão', sub: fmt(t.comissao, 2, 0) + '% do preço', value: money(r.comissao) },
-          { label: '+ CDO', sub: fmt(t.cdo, 2, 0) + '% por dentro', value: money(r.cdo) },
+          { label: '+ Funrural', sub: fmt(t.funrural, 2, 0) + '% por dentro', value: money4(r.funrural) },
+          { label: '+ Comissão', sub: fmt(t.comissao, 2, 0) + '% do preço', value: money4(r.comissao) },
+          { label: '+ CDO', sub: 'valor fixo por saco', value: money(r.cdo) },
           { label: '+ Frete', sub: 'valor por saco', value: money(t.frete) },
-          { label: '= Custo do saco', value: money(r.custoSaco), total: true },
+          { label: '= Custo do saco', value: money4(r.custoSaco), total: true },
           { label: '− Venda do quebrado', sub: fmt(r.kgQuebrado, 2, 0) + ' kg × ' + money(c.vendaQ), value: money(r.vendaQuebrado) },
-          { label: '= Custo líquido', value: money(r.liquido), total: true },
+          { label: '= Custo líquido', value: money4(r.liquido), total: true },
           { label: '÷ Arroz inteiro', sub: fmt(c.inteiro, 2, 0) + '% de 50 kg', value: fmt(r.kgInteiro, 2, 0) + ' kg' },
         ])}
         <div class="result">

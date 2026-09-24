@@ -9,21 +9,19 @@
   const SACO_KG = 50;
 
   // Linha 8 — custo do kg de arroz inteiro de um lote.
-  // t: taxas (funrural R$/saco, comissao %, cdo % por dentro, frete R$/saco)
+  // t: taxas (funrural % por dentro, comissao %, cdo R$/saco, frete R$/saco)
   // c: { inteiro %, quebrado %, preco R$/saco, vendaQ R$/kg }
-  // Obs.: na planilha as colunas "Funrural" e "CDO" estão com os nomes
-  // trocados — o percentual (1,65%) é o CDO e o valor fixo (0,93) é o Funrural.
   function compra(t, c) {
-    const cdo = (c.preco / (100 - t.cdo)) * 100 - c.preco; // % por dentro
-    const comissao = c.preco * (t.comissao / 100);
-    const funrural = t.funrural; // valor fixo por saco
-    const custoSaco = c.preco + cdo + comissao + funrural + t.frete; // J8
+    const funrural = (c.preco / (100 - t.funrural)) * 100 - c.preco; // F8 — % por dentro
+    const comissao = c.preco * (t.comissao / 100); // G8
+    const cdo = t.cdo; // H8 — valor fixo por saco
+    const custoSaco = c.preco + funrural + comissao + cdo + t.frete; // J8
     const kgQuebrado = SACO_KG * (c.quebrado / 100);
     const vendaQuebrado = kgQuebrado * c.vendaQ; // K8
     const liquido = custoSaco - vendaQuebrado; // L8
     const kgInteiro = SACO_KG * (c.inteiro / 100); // M8
     const custoKg = kgInteiro > 0 ? liquido / kgInteiro : NaN; // N8
-    return { cdo, comissao, funrural, frete: t.frete, custoSaco, kgQuebrado, vendaQuebrado, liquido, kgInteiro, custoKg };
+    return { funrural, comissao, cdo, frete: t.frete, custoSaco, kgQuebrado, vendaQuebrado, liquido, kgInteiro, custoKg };
   }
 
   // Linha 10 (colunas O6–O9) — quanto pagar pelo saco de outro lote
@@ -34,11 +32,11 @@
     const valorInteiro = kgInteiro * custoKg; // L10
     const valorQuebrado = kgQuebrado * vendaQ; // K10
     const bruto = valorInteiro + valorQuebrado; // J10
-    // Custo = preço × (1 + comissão + fator do CDO) + funrural + frete, então
-    // preço = (custo − funrural − frete) ÷ (1 + comissão + fator do CDO).
-    const semFixos = bruto - l.frete - t.funrural; // O7
-    const fatorCdo = t.cdo / (100 - t.cdo); // O6
-    const divisor = 1 + t.comissao / 100 + fatorCdo; // O8
+    // Custo = preço × (1 + comissão + fator do Funrural) + CDO + frete, então
+    // preço = (custo − CDO − frete) ÷ (1 + comissão + fator do Funrural).
+    const semFixos = bruto - l.frete - t.cdo; // O7
+    const fatorFunrural = t.funrural / (100 - t.funrural); // O6 = F8/D8
+    const divisor = 1 + t.comissao / 100 + fatorFunrural; // O8
     const preco = semFixos / divisor; // O9 → D10
     return { kgInteiro, kgQuebrado, valorInteiro, valorQuebrado, bruto, semFixos, divisor, preco };
   }

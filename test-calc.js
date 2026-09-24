@@ -1,10 +1,8 @@
 // Confere os cálculos contra a planilha enviada em 24/09/2026 (imagem).
-// Na planilha as colunas "Funrural" e "CDO" estão com os nomes trocados:
-// o CDO é o percentual (1,65%) e o Funrural é o valor fixo (R$ 0,93).
 // Uso: node test-calc.js
 const Calc = require('./calc.js');
 
-const taxas = { funrural: 0.93, comissao: 1, cdo: 1.65, frete: 4.5, custoQbr: 1.3, embalagem: 4.5, icms: 2.5, credito: 1, despesa: 0, freteFardo: 14, margem: 88 };
+const taxas = { funrural: 1.65, comissao: 1, cdo: 0.93, frete: 4.5, custoQbr: 1.3, embalagem: 4.5, icms: 2.5, credito: 1, despesa: 0, freteFardo: 14, margem: 88 };
 const TIPOS = [
   { inteiro: 28, quebrado: 2 },
   { inteiro: 26.5, quebrado: 3.5 },
@@ -23,9 +21,9 @@ function confere(nome, obtido, esperado) {
 
 const lote = { inteiro: 65, quebrado: 10, preco: 86.5, vendaQ: 0.3 };
 const c = Calc.compra(taxas, lote);
-confere('CDO 1,65% por dentro', c.cdo, 1.4512);
-confere('Comissão', c.comissao, 0.865);
-confere('Funrural fixo', c.funrural, 0.93);
+confere('F8 Funrural 1,65% por dentro', c.funrural, 1.4512);
+confere('G8 Comissão', c.comissao, 0.865);
+confere('H8 CDO fixo', c.cdo, 0.93);
 confere('J8 Custo do saco', c.custoSaco, 94.2462);
 confere('K8 Venda do quebrado', c.vendaQuebrado, 1.5);
 confere('L8 Custo líquido', c.liquido, 92.7462);
