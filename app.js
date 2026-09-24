@@ -4,6 +4,9 @@
   // v4: Funrural é % por dentro e CDO é R$ fixo por saco — valores antigos não servem.
   const STORAGE_KEY = 'custoArroz.v4';
 
+  // Mostrada no rodapé do Início. Aumentar a cada publicação.
+  const VERSAO = '1.0';
+
   // Valores iniciais = os da planilha (versão de 24/09/2026).
   const DEFAULTS = {
     taxas: { funrural: 1.65, comissao: 1, cdo: 0.93, frete: 4.5, custoQbr: 1.3, embalagem: 4.5, icms: 2.5, credito: 1, despesa: 0, freteFardo: 14, margem: 88 },
@@ -145,7 +148,8 @@
         <a class="big" href="#/compra"><span class="big-text"><span class="big-title">Comprar arroz em casca</span><span class="big-sub">Saber o custo do kg de arroz inteiro</span></span>${icon.right}</a>
         <a class="big outline" href="#/comparar"><span class="big-text"><span class="big-title">Quanto pagar por outro lote</span><span class="big-sub">Comparar pela qualidade do arroz</span></span>${icon.right}</a>
         <a class="big brown" href="#/venda"><span class="big-text"><span class="big-title">Vender fardos</span><span class="big-sub">Preço de venda de cada tipo de fardo</span></span>${icon.right}</a>
-        <a class="plain push" href="#/ajustes/compra">${icon.gear}Taxas e ajustes</a>`;
+        <a class="plain push" href="#/ajustes/compra">${icon.gear}Taxas e ajustes</a>
+        <p class="versao">versão ${VERSAO}</p>`;
     },
 
     compra() {
