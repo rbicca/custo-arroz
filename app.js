@@ -145,7 +145,7 @@
         <a class="big" href="#/compra"><span class="big-text"><span class="big-title">Comprar arroz em casca</span><span class="big-sub">Saber o custo do kg de arroz inteiro</span></span>${icon.right}</a>
         <a class="big outline" href="#/comparar"><span class="big-text"><span class="big-title">Quanto pagar por outro lote</span><span class="big-sub">Comparar pela qualidade do arroz</span></span>${icon.right}</a>
         <a class="big brown" href="#/venda"><span class="big-text"><span class="big-title">Vender fardos</span><span class="big-sub">Preço de venda de cada tipo de fardo</span></span>${icon.right}</a>
-        <a class="plain push" href="#/ajustes">${icon.gear}Taxas e ajustes</a>`;
+        <a class="plain push" href="#/ajustes/compra">${icon.gear}Taxas e ajustes</a>`;
     },
 
     compra() {
@@ -166,7 +166,7 @@
             : '<span class="result-value bad">Informe o % de inteiro</span>'}
           <div class="result-foot"><span>Saco sai por ${money(r.liquido)}</span><a href="#/compra-conta">Ver a conta${icon.right}</a></div>
         </div>
-        <a class="plain" href="#/ajustes/compra">${icon.gear}Mudar custos da compra</a>`;
+        <a class="plain" href="#/ajustes/compra/compra">${icon.gear}Mudar custos da compra</a>`;
     },
 
     'compra-conta'() {
@@ -227,7 +227,7 @@
         ${manual ? `<div class="info brown-info"><span>Na compra deu <strong>R$ ${fmt(calcCompra().custoKg, 4)}</strong></span><button class="link-btn" data-act="usar-compra" data-id="usar-compra">Usar este</button></div>` : ''}
         <h2>Preço de venda por fardo</h2>
         ${tipos}
-        <a class="plain push" href="#/ajustes/venda">${icon.gear}Mudar custos do fardo</a>`;
+        <a class="plain push" href="#/ajustes/venda/venda">${icon.gear}Mudar custos do fardo</a>`;
     },
 
     fardo(i) {
@@ -256,8 +256,10 @@
         </div>`;
     },
 
-    ajustes(tab) {
+    // #/ajustes/<aba>/<origem>: a origem (compra ou venda) define para onde o Voltar leva.
+    ajustes(tab, from) {
       if (['compra', 'venda', 'fardos'].includes(tab)) ajustesTab = tab;
+      const origem = ['compra', 'venda'].includes(from) ? from : '';
       const valueBtn = (path, label) => {
         const f = FIELDS[path];
         const txt = fieldText(path, get(path)) + (f.unit === 'R$' ? '' : ' ' + f.unit);
@@ -285,7 +287,7 @@
         }).join('');
       }
       const tabBtn = (t, label) => `<button class="tab" role="tab" aria-selected="${ajustesTab === t}" data-act="tab" data-tab="${t}" data-id="tab-${t}">${label}</button>`;
-      return `${back('', 'Início')}
+      return `${origem ? back(origem, 'Voltar') : back('', 'Início')}
         <h1>Taxas e ajustes</h1>
         <div class="tabs" role="tablist">${tabBtn('compra', 'Compra')}${tabBtn('venda', 'Venda')}${tabBtn('fardos', 'Fardos')}</div>
         ${list}
@@ -301,14 +303,14 @@
   function route() {
     const parts = (location.hash.replace(/^#\/?/, '') || '').split('/');
     const name = screens[parts[0]] ? parts[0] : 'home';
-    return { name, arg: parts[1] };
+    return { name, arg: parts[1], arg2: parts[2] };
   }
 
   function render(keepFocus) {
     const focusId = keepFocus && document.activeElement && document.activeElement.dataset
       ? document.activeElement.dataset.id : null;
-    const { name, arg } = route();
-    appEl.innerHTML = screens[name](arg);
+    const { name, arg, arg2 } = route();
+    appEl.innerHTML = screens[name](arg, arg2);
     document.title = name === 'home' ? 'Custo do Arroz' : (appEl.querySelector('h1')?.textContent || '') + ' · Custo do Arroz';
     if (focusId) appEl.querySelector(`[data-id="${CSS.escape(focusId)}"]`)?.focus();
   }
@@ -331,7 +333,14 @@
         break;
       }
       case 'edit': openKeypad(path); break;
-      case 'tab': ajustesTab = b.dataset.tab; render(true); break;
+      case 'tab': {
+        // Troca a aba no endereço (sem criar histórico), mantendo a origem do Voltar.
+        const { arg2 } = route();
+        ajustesTab = b.dataset.tab;
+        history.replaceState(null, '', `#/ajustes/${ajustesTab}${arg2 ? '/' + arg2 : ''}`);
+        render(true);
+        break;
+      }
       case 'usar-compra': state.venda.custoKg = null; save(); render(); break;
       case 'reset':
         if (confirm('Voltar todos os valores para os da planilha?')) {
