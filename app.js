@@ -1,20 +1,34 @@
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'custoArroz.v1';
+  // v2: Funrural passou de % para R$ por saco — valores da v1 não servem mais.
+  const STORAGE_KEY = 'custoArroz.v2';
 
-  // Valores iniciais = os que estão hoje na planilha.
+  // Valores iniciais = os da planilha (versão de 24/09/2026).
   const DEFAULTS = {
-    taxas: { funrural: 1.5, comissao: 1, cdo: 0.89, frete: 4.5, custoQbr: 1.8, embalagem: 3.5, icms: 2.4, credito: 0, despesa: 0, freteFardo: 21, margem: 89 },
-    compra: { inteiro: 65, quebrado: 10, preco: 75, vendaQ: 1.2 },
+    taxas: { funrural: 1.65, comissao: 1, cdo: 0.93, frete: 4.5, custoQbr: 1.3, embalagem: 4.5, icms: 2.5, credito: 1, despesa: 0, freteFardo: 14, margem: 88 },
+    compra: { inteiro: 65, quebrado: 10, preco: 86.5, vendaQ: 0.3 },
     comparar: { inteiro: 60, quebrado: 12, frete: 3.4 },
     venda: { custoKg: null }, // null = usa o custo calculado na compra
+    tipos: [
+      { inteiro: 28, quebrado: 2 },
+      { inteiro: 26.5, quebrado: 3.5 },
+      { inteiro: 23.5, quebrado: 6.5 },
+      { inteiro: 10.5, quebrado: 19.5 },
+    ],
   };
 
   // Como cada número é mostrado e ajustado.
-  const PCT = { unit: '%', dec: 1, step: 0.5, min: 0, max: 100 };
+  const PCT = { unit: '%', dec: 2, step: 0.5, min: 0, max: 100 };
   const RS = { unit: 'R$', dec: 2, step: 0.1, min: 0, max: 9999 };
+  const KG = { unit: 'kg', dec: 2, step: 0.5, min: 0, max: 100 };
+  const tipoFields = {};
+  DEFAULTS.tipos.forEach((_, i) => {
+    tipoFields[`tipos.${i}.inteiro`] = { ...KG, label: `Tipo ${i + 1}: inteiro`, help: 'quilos de arroz inteiro no fardo' };
+    tipoFields[`tipos.${i}.quebrado`] = { ...KG, label: `Tipo ${i + 1}: quebrado`, help: 'quilos de arroz quebrado no fardo' };
+  });
   const FIELDS = {
+    ...tipoFields,
     'compra.inteiro': { ...PCT, label: 'Inteiro' },
     'compra.quebrado': { ...PCT, label: 'Quebrado' },
     'compra.preco': { ...RS, step: 0.5, label: 'Preço do saco', help: 'em reais, saco de 50 kg' },
@@ -23,7 +37,7 @@
     'comparar.quebrado': { ...PCT, label: 'Quebrado' },
     'comparar.frete': { ...RS, label: 'Frete', help: 'em reais, por saco' },
     'venda.custoKg': { ...RS, dec: 4, step: 0.01, label: 'Custo do kg inteiro', help: 'em reais, por kg' },
-    'taxas.funrural': { ...PCT, step: 0.1, max: 99, label: 'Funrural', sub: 'em %, calculado por dentro' },
+    'taxas.funrural': { ...RS, label: 'Funrural', sub: 'R$ por saco' },
     'taxas.comissao': { ...PCT, step: 0.1, label: 'Comissão', sub: 'em % do preço do saco' },
     'taxas.cdo': { ...RS, label: 'CDO', sub: 'R$ por saco' },
     'taxas.frete': { ...RS, label: 'Frete', sub: 'R$ por saco' },
@@ -52,8 +66,14 @@
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* ignora */ }
   }
-  function get(path) { const [a, b] = path.split('.'); return state[a][b]; }
-  function set(path, v) { const [a, b] = path.split('.'); state[a][b] = v; save(); }
+  // Caminhos como 'compra.preco' ou 'tipos.3.inteiro'.
+  function parent(path) {
+    const keys = path.split('.');
+    const last = keys.pop();
+    return [keys.reduce((o, k) => o[k], state), last];
+  }
+  function get(path) { const [o, k] = parent(path); return o[k]; }
+  function set(path, v) { const [o, k] = parent(path); o[k] = v; save(); }
 
   // ---------- contas ----------
   function calcCompra() { return Calc.compra(state.taxas, state.compra); }
@@ -70,8 +90,9 @@
   const money = (n) => 'R$ ' + fmt(n, 2);
   function fieldText(path, v) {
     const f = FIELDS[path];
-    return f.unit === '%' ? fmt(v, f.dec, 0) : fmt(v, f.dec);
+    return f.unit === 'R$' ? fmt(v, f.dec) : fmt(v, f.dec, 0);
   }
+  const unitWords = { '%': 'por cento', 'R$': 'reais', kg: 'quilos' };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   // ---------- ícones ----------
@@ -95,7 +116,7 @@
       </div>
       <div class="stepper">
         <button class="round minus" data-act="dec" data-path="${path}" data-id="dec-${path}" aria-label="Diminuir ${f.label}">−</button>
-        <button class="value" data-act="edit" data-path="${path}" data-id="edit-${path}" aria-label="${f.label}: ${txt} ${f.unit === '%' ? 'por cento' : 'reais'}. Toque para digitar">${txt}</button>
+        <button class="value" data-act="edit" data-path="${path}" data-id="edit-${path}" aria-label="${f.label}: ${txt} ${unitWords[f.unit]}. Toque para digitar">${txt}</button>
         <button class="round plus" data-act="inc" data-path="${path}" data-id="inc-${path}" aria-label="Aumentar ${f.label}">+</button>
       </div>
     </div>`;
@@ -109,7 +130,10 @@
       </div>`).join('')}</div>`;
   }
 
-  const kgHint = (pct) => '= ' + fmt(50 * pct / 100, 1, 0) + ' kg no saco';
+  const kgHint = (pct) => '= ' + fmt(50 * pct / 100, 2, 0) + ' kg no saco';
+  const kg = (v) => fmt(v, 2, 0) + ' kg';
+  const tipoNome = (i) => 'Tipo ' + (i + 1);
+  const composicao = (tipo) => `${kg(tipo.inteiro)} inteiro + ${kg(tipo.quebrado)} quebrado`;
 
   // ---------- telas ----------
   const screens = {
@@ -131,7 +155,7 @@
         <h1>Comprar arroz em casca</h1>
         ${stepper('compra.inteiro', kgHint(c.inteiro))}
         ${stepper('compra.quebrado', kgHint(c.quebrado))}
-        ${soma > 100 ? `<div class="warn" role="alert">Inteiro + quebrado passa de 100% (${fmt(soma, 1, 0)}%). Confira os valores.</div>` : ''}
+        ${soma > 100 ? `<div class="warn" role="alert">Inteiro + quebrado passa de 100% (${fmt(soma, 2, 0)}%). Confira os valores.</div>` : ''}
         ${stepper('compra.preco', '50 kg')}
         ${stepper('compra.vendaQ', 'por kg')}
         <div class="result" aria-live="polite">
@@ -150,14 +174,14 @@
         <h1>Como chegamos no custo</h1>
         ${rows([
           { label: 'Preço do saco', sub: '50 kg de arroz em casca', value: money(c.preco) },
-          { label: '+ Funrural', sub: fmt(t.funrural, 2, 0) + '% por dentro', value: money(r.funrural) },
+          { label: '+ Funrural', sub: 'valor fixo por saco', value: money(r.funrural) },
           { label: '+ Comissão', sub: fmt(t.comissao, 2, 0) + '% do preço', value: money(r.comissao) },
           { label: '+ CDO', sub: 'valor fixo por saco', value: money(t.cdo) },
           { label: '+ Frete', sub: 'valor por saco', value: money(t.frete) },
           { label: '= Custo do saco', value: money(r.custoSaco), total: true },
-          { label: '− Venda do quebrado', sub: fmt(r.kgQuebrado, 1, 0) + ' kg × ' + money(c.vendaQ), value: money(r.vendaQuebrado) },
+          { label: '− Venda do quebrado', sub: fmt(r.kgQuebrado, 2, 0) + ' kg × ' + money(c.vendaQ), value: money(r.vendaQuebrado) },
           { label: '= Custo líquido', value: money(r.liquido), total: true },
-          { label: '÷ Arroz inteiro', sub: fmt(c.inteiro, 1, 0) + '% de 50 kg', value: fmt(r.kgInteiro, 1, 0) + ' kg' },
+          { label: '÷ Arroz inteiro', sub: fmt(c.inteiro, 2, 0) + '% de 50 kg', value: fmt(r.kgInteiro, 2, 0) + ' kg' },
         ])}
         <div class="result">
           <span class="result-label">Custo do kg de arroz inteiro</span>
@@ -177,7 +201,7 @@
         <div class="info"><span>Para manter o custo de<br><strong>R$ ${fmt(base.custoKg, 4)}</strong> por kg inteiro</span><a class="link-btn" href="#/compra">Mudar</a></div>
         ${stepper('comparar.inteiro', kgHint(l.inteiro))}
         ${stepper('comparar.quebrado', kgHint(l.quebrado))}
-        ${soma > 100 ? `<div class="warn" role="alert">Inteiro + quebrado passa de 100% (${fmt(soma, 1, 0)}%). Confira os valores.</div>` : ''}
+        ${soma > 100 ? `<div class="warn" role="alert">Inteiro + quebrado passa de 100% (${fmt(soma, 2, 0)}%). Confira os valores.</div>` : ''}
         ${stepper('comparar.frete', 'por saco')}
         <div class="result" aria-live="polite">
           <span class="result-label">Pode pagar até</span>
@@ -189,39 +213,40 @@
     venda() {
       const custo = custoKgVenda();
       const manual = state.venda.custoKg != null;
-      const tipos = Calc.TIPOS.map((tipo, i) => {
+      const tipos = state.tipos.map((tipo, i) => {
         const p = Calc.fardo(state.taxas, custo, tipo).preco;
-        return `<a class="tipo" href="#/fardo/${i}" aria-label="${tipo.nome}: ${money(p)} por fardo. Ver a conta">
-          <span class="tipo-text"><span class="tipo-nome">${tipo.nome}</span><span class="tipo-comp">${fmt(tipo.inteiro, 1, 0)} kg inteiro + ${fmt(tipo.quebrado, 1, 0)} kg quebrado</span></span>
+        return `<a class="tipo" href="#/fardo/${i}" aria-label="${tipoNome(i)}: ${money(p)} por fardo. Ver a conta">
+          <span class="tipo-text"><span class="tipo-nome">${tipoNome(i)}</span><span class="tipo-comp">${composicao(tipo)}</span></span>
           <span class="tipo-preco">${money(p)}</span>${icon.right}</a>`;
       }).join('');
       return `${back('', 'Início')}
         <h1>Vender fardos</h1>
         <div class="brown-theme">${stepper('venda.custoKg', manual ? 'digitado' : 'da compra')}</div>
         ${manual ? `<div class="info brown-info"><span>Na compra deu <strong>R$ ${fmt(calcCompra().custoKg, 4)}</strong></span><button class="link-btn" data-act="usar-compra" data-id="usar-compra">Usar este</button></div>` : ''}
-        <h2>Preço de venda por fardo de 30 kg</h2>
+        <h2>Preço de venda por fardo</h2>
         ${tipos}
         <a class="plain push" href="#/ajustes/venda">${icon.gear}Mudar custos do fardo</a>`;
     },
 
     fardo(i) {
-      const tipo = Calc.TIPOS[+i] || Calc.TIPOS[0];
+      const idx = state.tipos[+i] ? +i : 0;
+      const tipo = state.tipos[idx];
       const t = state.taxas;
       const c = custoKgVenda();
       const r = Calc.fardo(t, c, tipo);
       return `${back('venda', 'Voltar')}
-        <h1>${tipo.nome} · conta do fardo</h1>
-        <p class="sub">${fmt(tipo.inteiro, 1, 0)} kg inteiro + ${fmt(tipo.quebrado, 1, 0)} kg quebrado</p>
+        <h1>${tipoNome(idx)} · conta do fardo</h1>
+        <p class="sub">${composicao(tipo)}</p>
         ${rows([
-          { label: 'Arroz inteiro', sub: fmt(tipo.inteiro, 1, 0) + ' kg × R$ ' + fmt(c, 4), value: money(r.valorInteiro) },
-          { label: '+ Arroz quebrado', sub: fmt(tipo.quebrado, 1, 0) + ' kg × ' + money(t.custoQbr), value: money(r.valorQuebrado) },
+          { label: 'Arroz inteiro', sub: kg(tipo.inteiro) + ' × R$ ' + fmt(c, 4), value: money(r.valorInteiro) },
+          { label: '+ Arroz quebrado', sub: kg(tipo.quebrado) + ' × ' + money(t.custoQbr), value: money(r.valorQuebrado) },
           { label: '+ Embalagem', sub: 'por fardo', value: money(t.embalagem) },
           { label: '+ ICMS', sub: 'por fardo', value: money(t.icms) },
           { label: '− Crédito', sub: 'por fardo', value: money(t.credito) },
           { label: '+ Despesa', sub: 'por fardo', value: money(t.despesa) },
           { label: '+ Frete', sub: 'por fardo', value: money(t.freteFardo) },
           { label: '= Custo do fardo', value: money(r.custo), total: true },
-          { label: '÷ Margem', sub: 'dividido por ' + fmt(t.margem, 1, 0) + '%', value: '' },
+          { label: '÷ Margem', sub: 'dividido por ' + fmt(t.margem, 2, 0) + '%', value: '' },
         ])}
         <div class="result brown">
           <span class="result-label">Preço de venda do fardo</span>
@@ -230,27 +255,39 @@
     },
 
     ajustes(tab) {
-      if (tab === 'venda' || tab === 'compra') ajustesTab = tab;
-      const keys = ajustesTab === 'compra'
-        ? ['funrural', 'comissao', 'cdo', 'frete']
-        : ['custoQbr', 'embalagem', 'icms', 'credito', 'despesa', 'freteFardo', 'margem'];
-      const list = keys.map((k) => {
-        const path = 'taxas.' + k, f = FIELDS[path];
-        const txt = fieldText(path, get(path)) + (f.unit === '%' ? ' %' : '');
-        return `<div class="setting">
-          <div class="row-text"><span class="field-label">${f.label}</span><span class="row-sub">${f.sub}</span></div>
-          <button class="value" data-act="edit" data-path="${path}" data-id="edit-${path}" aria-label="${f.label}: ${txt}. Toque para digitar">${txt}</button>
-        </div>`;
-      }).join('');
-      const sel = (t) => (ajustesTab === t ? 'true' : 'false');
+      if (['compra', 'venda', 'fardos'].includes(tab)) ajustesTab = tab;
+      const valueBtn = (path, label) => {
+        const f = FIELDS[path];
+        const txt = fieldText(path, get(path)) + (f.unit === 'R$' ? '' : ' ' + f.unit);
+        return `<button class="value" data-act="edit" data-path="${path}" data-id="edit-${path}" aria-label="${label || f.label}: ${txt}. Toque para digitar">${txt}</button>`;
+      };
+      let list;
+      if (ajustesTab === 'fardos') {
+        list = state.tipos.map((tipo, i) => `<div class="setting tipo-setting">
+          <div class="row-text"><span class="field-label">${tipoNome(i)}</span><span class="row-sub">total ${kg(tipo.inteiro + tipo.quebrado)}</span></div>
+          <div class="kg-pair">
+            <span class="kg-label">Inteiro</span>${valueBtn(`tipos.${i}.inteiro`)}
+            <span class="kg-label">Quebrado</span>${valueBtn(`tipos.${i}.quebrado`)}
+          </div>
+        </div>`).join('');
+      } else {
+        const keys = ajustesTab === 'compra'
+          ? ['funrural', 'comissao', 'cdo', 'frete']
+          : ['custoQbr', 'embalagem', 'icms', 'credito', 'despesa', 'freteFardo', 'margem'];
+        list = keys.map((k) => {
+          const path = 'taxas.' + k, f = FIELDS[path];
+          return `<div class="setting">
+            <div class="row-text"><span class="field-label">${f.label}</span><span class="row-sub">${f.sub}</span></div>
+            ${valueBtn(path)}
+          </div>`;
+        }).join('');
+      }
+      const tabBtn = (t, label) => `<button class="tab" role="tab" aria-selected="${ajustesTab === t}" data-act="tab" data-tab="${t}" data-id="tab-${t}">${label}</button>`;
       return `${back('', 'Início')}
         <h1>Taxas e ajustes</h1>
-        <div class="tabs" role="tablist">
-          <button class="tab" role="tab" aria-selected="${sel('compra')}" data-act="tab" data-tab="compra" data-id="tab-compra">Compra</button>
-          <button class="tab" role="tab" aria-selected="${sel('venda')}" data-act="tab" data-tab="venda" data-id="tab-venda">Venda</button>
-        </div>
+        <div class="tabs" role="tablist">${tabBtn('compra', 'Compra')}${tabBtn('venda', 'Venda')}${tabBtn('fardos', 'Fardos')}</div>
         ${list}
-        <p class="note">Estes valores ficam guardados neste aparelho. Só precisa mudar quando as taxas mudarem.</p>
+        <p class="note">${ajustesTab === 'fardos' ? 'Quilos de arroz inteiro e quebrado em cada tipo de fardo.' : 'Estes valores ficam guardados neste aparelho. Só precisa mudar quando as taxas mudarem.'}</p>
         <button class="plain danger-btn push" data-act="reset" data-id="reset">Voltar aos valores da planilha</button>`;
     },
   };
@@ -348,7 +385,7 @@
       <div class="kp-display" role="status" aria-live="polite">
         ${f.unit === 'R$' ? '<span class="unit">R$</span>' : ''}
         <span class="num${kp.fresh ? ' fresh' : ''}">${esc(kp.txt || '0')}</span>
-        ${f.unit === '%' ? '<span class="unit">%</span>' : ''}
+        ${f.unit !== 'R$' ? `<span class="unit">${f.unit}</span>` : ''}
       </div>
       <div class="kp-help${err && !kp.fresh ? ' err' : ''}">${help}</div>
       <div class="keys">${keys}</div>

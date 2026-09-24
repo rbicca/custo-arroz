@@ -8,19 +8,11 @@
 
   const SACO_KG = 50;
 
-  // Tipos de fardo de 30 kg (linhas 20–23): kg de inteiro + kg de quebrado.
-  const TIPOS = [
-    { nome: 'Tipo 1', inteiro: 28, quebrado: 2 },
-    { nome: 'Tipo 2', inteiro: 26.5, quebrado: 3.5 },
-    { nome: 'Tipo 3', inteiro: 23.5, quebrado: 6.5 },
-    { nome: 'Tipo 4', inteiro: 15, quebrado: 15 },
-  ];
-
   // Linha 8 — custo do kg de arroz inteiro de um lote.
-  // t: taxas (funrural %, comissao %, cdo R$, frete R$)
+  // t: taxas (funrural R$/saco, comissao %, cdo R$/saco, frete R$/saco)
   // c: { inteiro %, quebrado %, preco R$/saco, vendaQ R$/kg }
   function compra(t, c) {
-    const funrural = (c.preco / (100 - t.funrural)) * 100 - c.preco; // F8
+    const funrural = t.funrural; // F8 — valor fixo por saco
     const comissao = c.preco * (t.comissao / 100); // G8
     const custoSaco = c.preco + funrural + comissao + t.cdo + t.frete; // J8
     const kgQuebrado = SACO_KG * (c.quebrado / 100);
@@ -39,14 +31,16 @@
     const valorInteiro = kgInteiro * custoKg; // L10
     const valorQuebrado = kgQuebrado * vendaQ; // K10
     const bruto = valorInteiro + valorQuebrado; // J10
-    const semFixos = bruto - l.frete - t.cdo; // O7
-    const fatorFunrural = t.funrural / (100 - t.funrural); // O6 = F8/D8
-    const divisor = 1 + t.comissao / 100 + fatorFunrural; // O8
+    // Custo = preço + funrural + comissão + CDO + frete, então
+    // preço = (custo − funrural − CDO − frete) ÷ (1 + comissão).
+    const semFixos = bruto - l.frete - t.cdo - t.funrural; // O7
+    const divisor = 1 + t.comissao / 100; // O8
     const preco = semFixos / divisor; // O9 → D10
     return { kgInteiro, kgQuebrado, valorInteiro, valorQuebrado, bruto, semFixos, divisor, preco };
   }
 
   // Linhas 20–23 — preço de venda de um fardo.
+  // tipo: { inteiro kg, quebrado kg }
   function fardo(t, custoKg, tipo) {
     const valorInteiro = custoKg * tipo.inteiro;
     const valorQuebrado = t.custoQbr * tipo.quebrado;
@@ -56,7 +50,7 @@
     return { valorInteiro, valorQuebrado, custo, preco };
   }
 
-  const api = { SACO_KG, TIPOS, compra, comparar, fardo };
+  const api = { SACO_KG, compra, comparar, fardo };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Calc = api;
 })(this);
