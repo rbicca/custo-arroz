@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Custo do Arroz — Tutorial</title>
+<!--
+  Fonte do tutorial em PDF. Para gerar o PDF de novo (Windows, com o Edge):
+    msedge --headless=new --no-pdf-header-footer --print-to-pdf="docs\tutorial-custo-do-arroz.pdf" docs\tutorial.html
+  As capturas em docs/img/ são do próprio app, em tamanho de iPhone (430×932, 2x).
+-->
+<style>
+@font-face { font-family: 'Atkinson'; font-weight: 400; src: url(../fonts/atkinson-400.woff2) format('woff2'); }
+@font-face { font-family: 'Atkinson'; font-weight: 700; src: url(../fonts/atkinson-700.woff2) format('woff2'); }
+
+:root {
+  --ink: #17160F;
+  --muted: #4A4740;
+  --bg: #F4F1EA;
+  --line: #D9D3C6;
+  --green: #1E5B3A;
+  --green-soft: #E3EEE6;
+  --brown: #8A4B12;
+  --brown-soft: #F6E9DA;
+  --amber: #E0A526;
+  --band: #0F1B24;   /* faixa do cabeçalho: fundo escuro para a logo clara */
+  --teal: #5BDDDD;   /* cor do "K" da Softkuka */
+}
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: 'Atkinson', system-ui, sans-serif; color: var(--ink); font-size: 12.5pt; line-height: 1.45;
+       -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+.page { width: 210mm; height: 297mm; position: relative; overflow: hidden; page-break-after: always; background: #fff; }
+.page:last-child { page-break-after: auto; }
+
+/* Cabeçalho com a logo da Softkuka */
+.head { height: 22mm; background: var(--band); display: flex; align-items: center; justify-content: space-between;
+        padding: 0 16mm; border-bottom: 1.4mm solid var(--teal); }
+.head img { height: 8.5mm; display: block; }
+.head span { color: #C9D6DD; font-size: 11pt; letter-spacing: 0.02em; }
+
+.body { padding: 11mm 16mm 0; }
+.foot { position: absolute; left: 16mm; right: 16mm; bottom: 9mm; display: flex; justify-content: space-between;
+        font-size: 9.5pt; color: var(--muted); border-top: 0.3mm solid var(--line); padding-top: 2.5mm; }
+
+h1 { font-size: 24pt; line-height: 1.15; margin: 0 0 3mm; }
+h2 { font-size: 15pt; margin: 6mm 0 2.5mm; }
+p { margin: 0 0 3mm; }
+.lead { font-size: 13.5pt; color: var(--muted); margin-bottom: 5mm; }
+.tag { display: inline-block; font-size: 10pt; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+       color: var(--green); margin-bottom: 1.5mm; }
+.tag.brown { color: var(--brown); }
+
+/* Celular com captura */
+.phone { border: 2.2mm solid #1d1d1d; border-radius: 8mm; overflow: hidden; background: var(--bg);
+         box-shadow: 0 1.5mm 4mm rgba(0,0,0,0.12); }
+.phone img { display: block; width: 100%; }
+.cap { font-size: 10pt; color: var(--muted); text-align: center; margin-top: 2mm; }
+
+.row { display: flex; gap: 9mm; align-items: flex-start; }
+.col { flex: 1; min-width: 0; }
+.shot { width: 46mm; flex: none; }
+.shot.small { width: 39mm; }
+
+/* Passos numerados */
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.steps li { counter-increment: s; position: relative; padding: 0 0 4.5mm 13mm; min-height: 11mm; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: -0.5mm; width: 9mm; height: 9mm; border-radius: 50%;
+                    background: var(--green); color: #fff; font-weight: 700; font-size: 13pt; display: flex; align-items: center; justify-content: center; }
+.steps.brown li::before { background: var(--brown); }
+.steps b { font-weight: 700; }
+.ico { display: inline-block; vertical-align: -1.2mm; width: 6mm; height: 6mm; margin: 0 0.5mm; }
+.chip { display: inline-block; border: 0.35mm solid var(--line); border-radius: 2mm; padding: 0 2mm; background: #FAF8F3; font-weight: 700; white-space: nowrap; }
+
+.box { border-radius: 4mm; padding: 4mm 5mm; margin: 4mm 0; }
+.box.green { background: var(--green-soft); }
+.box.brown { background: var(--brown-soft); }
+.box.amber { background: #FBF0D6; border: 0.4mm solid var(--amber); }
+.box h3 { margin: 0 0 1.5mm; font-size: 12.5pt; }
+.box p:last-child { margin-bottom: 0; }
+
+/* Conta passo a passo */
+table.conta { width: 100%; border-collapse: collapse; font-size: 11.5pt; font-variant-numeric: tabular-nums; }
+table.conta td { padding: 1.1mm 0; border-top: 0.25mm solid var(--line); vertical-align: top; }
+table.conta td:last-child { text-align: right; white-space: nowrap; padding-left: 4mm; }
+table.conta tr:first-child td { border-top: none; }
+table.conta .sub { display: block; font-size: 9pt; color: var(--muted); }
+table.conta tr.total td { border-top: 0.6mm solid var(--ink); font-weight: 700; }
+table.conta tr.final td { background: var(--green); color: #fff; font-weight: 700; font-size: 13pt; padding: 1.8mm 3mm; border: none; }
+table.conta.brown tr.final td { background: var(--brown); }
+
+table.grade { width: 100%; border-collapse: collapse; font-size: 11pt; font-variant-numeric: tabular-nums; }
+table.grade th, table.grade td { padding: 1.6mm 2mm; border-bottom: 0.25mm solid var(--line); text-align: right; white-space: nowrap; }
+table.grade th:first-child, table.grade td:first-child { text-align: left; }
+table.grade th { font-size: 10pt; color: var(--muted); font-weight: 700; }
+
+/* Capa */
+.capa .body { padding-top: 22mm; }
+.capa h1 { font-size: 40pt; margin-bottom: 4mm; }
+.capa .lead { font-size: 16pt; max-width: 150mm; }
+.capa .icone { width: 30mm; height: 30mm; border-radius: 7mm; display: block; margin-bottom: 9mm; }
+.capa .meta { font-size: 11.5pt; color: var(--muted); margin-top: 8mm; }
+.indice { columns: 2; column-gap: 10mm; margin: 0; padding-left: 5mm; font-size: 12pt; }
+.indice li { margin-bottom: 1.5mm; }
+</style>
+</head>
+<body>
+
+<!-- ============ 1. CAPA ============ -->
+<section class="page capa">
+  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Tutorial</span></div>
+  <div class="body">
+    <img class="icone" src="img/icone-app.png" alt="">
+    <h1>Custo do Arroz</h1>
+    <p class="lead">Tutorial de instalação e uso no iPhone e no Android, com a metodologia de cálculo de cada tela.</p>
+    <div class="row" style="margin-top: 4mm">
+      <div class="shot small"><div class="phone"><img src="img/inicio.png" alt="Tela de início"></div></div>
+      <div class="shot small"><div class="phone"><img src="img/compra.png" alt="Tela de compra"></div></div>
+      <div class="col" style="padding-top: 2mm">
+        <h2 style="margin-top: 0">Neste tutorial</h2>
+        <ol class="indice" style="columns: 1">
+          <li>Instalar no iPhone</li>
+          <li>Instalar no Android</li>
+          <li>Como digitar os valores</li>
+          <li>Comprar arroz em casca</li>
+          <li>Quanto pagar por outro lote</li>
+          <li>Vender fardos</li>
+          <li>Taxas e ajustes</li>
+          <li>Atualizações, sem internet e dados</li>
+        </ol>
+        <p class="meta">Versão do app: 1.2<br>Setembro de 2026<br>Endereço: <b>rbicca.github.io/custo-arroz</b></p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Softkuka · Custo do Arroz</span><span>1</span></div>
+</section>
+
+<!-- ============ 2. INSTALAR NO IPHONE ============ -->
+<section class="page">
+  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="body">
+    <span class="tag">Instalação</span>
+    <h1>Instalar no iPhone</h1>
+    <p class="lead">O app é instalado pelo Safari, sem App Store. Depois de instalado, ele funciona sem internet.</p>
+    <ol class="steps">
+      <li>Abra o <b>Safari</b> e digite o endereço <span class="chip">rbicca.github.io/custo-arroz</span>. Precisa ser o Safari e precisa ter internet nesta primeira vez.</li>
+      <li>Toque no botão <b>Compartilhar</b>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#1E5B3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>
+        (quadrado com uma seta para cima). Se ele não estiver à vista, toque antes nos <b>três pontinhos</b> <span class="chip">···</span> na parte de baixo da tela.</li>
+      <li>Na lista que abrir, role para baixo e toque em <b>Adicionar à Tela de Início</b>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#1E5B3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>.</li>
+      <li>Se aparecer a opção <b>Abrir como App Web</b>, deixe-a ligada. Confira o nome <b>Custo Arroz</b> e toque em <b>Adicionar</b>.</li>
+      <li>Pronto: o ícone verde do <b>Custo Arroz</b> aparece na Tela de Início, junto com os outros apps. <b>Use sempre por esse ícone.</b></li>
+    </ol>
+    <div class="row" style="margin-top: 2mm">
+      <div class="col">
+        <div class="box green">
+          <h3>Por que usar sempre pelo ícone?</h3>
+          <p>No iPhone, o app instalado e o Safari guardam os valores <b>separados</b>. Valores digitados no Safari não aparecem no app do ícone, e vice-versa.</p>
+          <p>Além disso, o iPhone pode apagar dados de sites abertos só no Safari que ficam sem uso por alguns dias. O app instalado na Tela de Início não sofre essa limpeza.</p>
+        </div>
+        <div class="box amber">
+          <h3>Os nomes dos botões podem variar</h3>
+          <p>Conforme a versão do iOS, o botão Compartilhar fica na barra de baixo ou dentro dos três pontinhos. O caminho é sempre o mesmo: <b>Compartilhar → Adicionar à Tela de Início</b>.</p>
+        </div>
+      </div>
+      <div style="width: 38mm; flex: none; text-align: center; padding-top: 4mm">
+        <img src="img/icone-app.png" alt="" style="width: 26mm; border-radius: 6mm; display: block; margin: 0 auto">
+        <p class="cap" style="font-size: 11pt; color: var(--ink)"><b>Custo Arroz</b></p>
+        <p class="cap">Assim fica o ícone na Tela de Início</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Softkuka · Custo do Arroz</span><span>2</span></div>
+</section>
+
+<!-- ============ 3. INSTALAR NO ANDROID ============ -->
+<section class="page">
+  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="body">
+    <span class="tag">Instalação</span>
+    <h1>Instalar no Android</h1>
+    <p class="lead">O app é instalado pelo Chrome, sem Play Store. Depois de instalado, ele funciona sem internet.</p>
+    <ol class="steps">
+      <li>Abra o <b>Chrome</b> e digite o endereço <span class="chip">rbicca.github.io/custo-arroz</span>. Precisa ter internet nesta primeira vez.</li>
+      <li>Se aparecer embaixo o aviso <b>Instalar app</b> (ou <b>Adicionar Custo Arroz à tela inicial</b>), toque nele e pule para o passo 4.</li>
+      <li>Se não aparecer, toque no menu de <b>três pontinhos</b>
+        <svg class="ico" viewBox="0 0 24 24" fill="#1E5B3A"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+        no canto de cima e toque em <b>Instalar app</b>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#1E5B3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 7v8M9 12l3 3 3-3"/></svg>.
+        Em alguns celulares o nome é <b>Adicionar à tela inicial</b>.</li>
+      <li>Confirme tocando em <b>Instalar</b>.</li>
+      <li>Pronto: o ícone verde do <b>Custo Arroz</b> aparece na tela inicial e na lista de apps. Ele abre em tela cheia, como um app comum.</li>
+    </ol>
+    <div class="box green">
+      <h3>Testar o uso sem internet</h3>
+      <p>Depois de instalar, abra o app uma vez com internet. Em seguida, ligue o <b>modo avião</b>, feche o app e abra de novo pelo ícone: ele deve funcionar normalmente, com todas as contas.</p>
+    </div>
+    <div class="box amber">
+      <h3>E se o Chrome não mostrar "Instalar app"?</h3>
+      <p>Confira se a página abriu por completo, com internet, e se o endereço está certo. Se usar outro navegador, como Samsung Internet, a opção costuma ficar no menu com o nome <b>Adicionar página a → Tela inicial</b>.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Softkuka · Custo do Arroz</span><span>3</span></div>
+</section>
+
+<!-- ============ 4. COMO DIGITAR ============ -->
+<section class="page">
+  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="body">
+    <span class="tag">Uso</span>
+    <h1>O Início e como digitar os valores</h1>
+    <p class="lead">Tudo começa no Início. Os botões grandes levam às três calculadoras; o de baixo leva às taxas.</p>
+    <div class="row">
+      <div class="shot"><div class="phone"><img src="img/inicio.png" alt="Início"></div><p class="cap">Início</p></div>
+      <div class="col">
+        <h2 style="margin-top: 0">Os três cálculos</h2>
+        <p><b>Comprar arroz em casca</b>: quanto custa o kg de arroz inteiro de um lote.</p>
+        <p><b>Quanto pagar por outro lote</b>: o preço máximo de um lote de outra qualidade.</p>
+        <p><b>Vender fardos</b>: o preço de venda de cada tipo de fardo.</p>
+        <p style="margin-top: 5mm"><b>Taxas e ajustes</b> guarda os valores que mudam pouco: Funrural, comissão, CDO, fretes, custos do fardo e composição dos tipos.</p>
+        <p class="cap" style="text-align: left; margin-top: 5mm">O número <b>versão 1.2</b>, no rodapé, mostra qual versão do app está instalada.</p>
+      </div>
+    </div>
+    <h2>Duas formas de mudar um número</h2>
+    <div class="row">
+      <div class="col">
+        <ol class="steps">
+          <li><b>Botões − e +</b>: cada toque diminui ou aumenta um pouco o valor. O resultado da conta muda na hora.</li>
+          <li><b>Tocar no número</b>: abre o <b>teclado grande</b>. O valor atual fica marcado e o primeiro número digitado já substitui o antigo.</li>
+          <li>Use a <b>vírgula</b> para os centavos e a tecla
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#17160F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M17 9l-6 6M11 9l6 6"/></svg>
+            para apagar. Toque em <b>Pronto</b> para confirmar ou em <b>Cancelar</b> para deixar como estava.</li>
+        </ol>
+        <div class="box green"><p>Todo valor mudado fica <b>guardado sozinho</b> no aparelho. Não existe botão de salvar.</p></div>
+      </div>
+      <div class="shot small"><div class="phone"><img src="img/teclado.png" alt="Teclado grande"></div><p class="cap">Teclado grande</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Softkuka · Custo do Arroz</span><span>4</span></div>
+</section>
+
+<!-- ============ 5. COMPRAR ARROZ EM CASCA ============ -->
+<section class="page">
+  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="body">
+    <span class="tag">Cálculo 1</span>
+    <h1>Comprar arroz em casca</h1>
+    <p class="lead">Informe o rendimento e o preço do lote. O app mostra quanto custa cada kg de arroz inteiro.</p>
+    <div class="row">
+      <div class="shot small"><div class="phone"><img src="img/compra.png" alt="Comprar arroz em casca"></div><p class="cap">Os 4 valores do lote</p></div>
+      <div class="col">
+        <h2 style="margin-top: 0">O que digitar</h2>
+        <p><b>Inteiro (%)</b> e <b>Quebrado (%)</b>: o rendimento do lote. Ao lado aparece quanto isso dá em kg num saco de 50 kg.</p>
+        <p><b>Preço do saco (R$)</b>: o preço pago pelo saco de 50 kg em casca.</p>
+        <p><b>Venda do quebrado (R$ por kg)</b>: o valor recebido pelo arroz quebrado, que abate o custo.</p>
+        <p>O quadro verde mostra o <b>custo do kg de arroz inteiro</b>. Toque em <b>Ver a conta</b> para ver no app o mesmo passo a passo da tabela abaixo; <b>Mudar custos da compra</b> leva às taxas.</p>
+        <div class="box green" style="margin-bottom: 0"><p><b>Funrural "por dentro"</b>: ele é calculado sobre o valor bruto, e não sobre o preço. Por isso dá um pouco mais que 1,65% de 86,50.</p></div>
+      </div>
+    </div>
+    <h2>Metodologia, com os valores iniciais</h2>
+    <table class="conta">
+      <tr><td>Preço do saco<span class="sub">50 kg de arroz em casca</span></td><td>R$ 86,50</td></tr>
+      <tr><td>+ Funrural<span class="sub">1,65% calculado por dentro: 86,50 ÷ (1 − 0,0165) − 86,50</span></td><td>R$ 1,4512</td></tr>
+      <tr><td>+ Comissão<span class="sub">1% do preço do saco</span></td><td>R$ 0,8650</td></tr>
+      <tr><td>+ CDO e + Frete<span class="sub">valores fixos por saco: 0,93 e 4,50</span></td><td>R$ 5,43</td></tr>
+      <tr class="total"><td>= Custo do saco</td><td>R$ 94,2462</td></tr>
+      <tr><td>− Venda do quebrado<span class="sub">10% de 50 kg = 5 kg × R$ 0,30</span></td><td>R$ 1,50</td></tr>
+      <tr class="total"><td>= Custo líquido do saco</td><td>R$ 92,7462</td></tr>
+      <tr class="final"><td>÷ 32,5 kg de inteiro (65% de 50 kg) = custo do kg inteiro</td><td>R$ 2,8537</td></tr>
+    </table>
+  </div>
+  <div class="foot"><span>Softkuka · Custo do Arroz</span><span>5</span></div>
+</section>
+
+<!-- ============ 6. QUANTO PAGAR POR OUTRO LOTE ============ -->
+<section class="page">
+  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="body">
+    <span class="tag">Cálculo 2</span>
+    <h1>Quanto pagar por outro lote</h1>
+    <p class="lead">Para um lote de outra qualidade, o app calcula o preço máximo do saco para manter o <b>mesmo custo do kg inteiro</b> do lote da tela de compra.</p>
+    <div class="row">
+      <div class="shot"><div class="phone"><img src="img/comparar.png" alt="Quanto pagar por outro lote"></div><p class="cap">Outro lote: 60% inteiro, 12% quebrado</p></div>
+      <div class="col">
+        <h2 style="margin-top: 0">O que digitar</h2>
+        <p><b>Inteiro (%)</b> e <b>Quebrado (%)</b> do outro lote, e o <b>Frete (R$ por saco)</b> dele.</p>
+        <p>O quadro de cima lembra o custo do kg inteiro que será mantido. Para mudá-lo, toque em <b>Mudar</b>: ele leva à tela de compra.</p>
+        <p>A venda do quebrado, o Funrural, a comissão e o CDO vêm da tela de compra e das taxas.</p>
+        <p>O quadro verde mostra o <b>preço máximo por saco</b> e quanto ele fica acima ou abaixo do lote comprado.</p>
+        <div class="box green"><p>Pagando até esse preço, o kg de arroz inteiro deste lote sai pelo mesmo custo do lote de referência.</p></div>
+      </div>
+    </div>
+    <h2>Metodologia, com os valores iniciais</h2>
+    <table class="conta">
+      <tr><td>Valor do arroz inteiro<span class="sub">60% de 50 kg = 30 kg × R$ 2,8537</span></td><td>R$ 85,6119</td></tr>
+      <tr><td>+ Valor do quebrado<span class="sub">12% de 50 kg = 6 kg × R$ 0,30</span></td><td>R$ 1,80</td></tr>
+      <tr class="total"><td>= Custo que o saco pode ter</td><td>R$ 87,4119</td></tr>
+      <tr><td>− Frete e − CDO<span class="sub">3,40 (deste lote) + 0,93</span></td><td>R$ 4,33</td></tr>
+      <tr class="total"><td>= Sobra para preço, Funrural e comissão</td><td>R$ 83,0819</td></tr>
+      <tr><td>÷ (1 + comissão + Funrural por dentro)<span class="sub">1 + 0,01 + 1,65 ÷ 98,35</span></td><td>1,026777</td></tr>
+      <tr class="final"><td>= Pode pagar até, por saco</td><td>R$ 80,9152</td></tr>
+    </table>
+  </div>
+  <div class="foot"><span>Softkuka · Custo do Arroz</span><span>6</span></div>
+</section>
+
+<!-- ============ 7. VENDER FARDOS ============ -->
+<section class="page">
+  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="body">
+    <span class="tag brown">Cálculo 3</span>
+    <h1>Vender fardos</h1>
+    <p class="lead">Com o custo do kg inteiro, o app calcula o preço de venda de cada tipo de fardo.</p>
+    <div class="row">
+      <div class="shot small"><div class="phone"><img src="img/venda.png" alt="Vender fardos"></div><p class="cap">Os 4 tipos de fardo</p></div>
+      <div class="col">
+        <h2 style="margin-top: 0">Como funciona</h2>
+        <p>O <b>custo do kg inteiro</b> vem da tela de compra ("da compra"). Se quiser simular outro custo, mude-o aqui: aparece o botão <b>Usar este</b> para voltar ao valor da compra.</p>
+        <p>Cada cartão mostra a composição do fardo e o <b>preço de venda</b>. Toque no cartão para ver a conta.</p>
+        <p><b>Mudar custos do fardo</b> leva às taxas de venda: custo do quebrado, embalagem, ICMS, crédito, despesa, frete e margem.</p>
+      </div>
+      <div class="shot small"><div class="phone"><img src="img/fardo.png" alt="Conta do fardo"></div><p class="cap">Conta do Tipo 1</p></div>
+    </div>
+    <h2>Metodologia (Tipo 1, com os valores iniciais)</h2>
+    <div class="row" style="gap: 7mm">
+      <div class="col">
+        <table class="conta brown">
+          <tr><td>Arroz inteiro<span class="sub">28 kg × R$ 2,8537</span></td><td>R$ 79,9044</td></tr>
+          <tr><td>+ Arroz quebrado<span class="sub">2 kg × R$ 1,30</span></td><td>R$ 2,60</td></tr>
+          <tr><td>+ Embalagem + ICMS<span class="sub">4,50 + 2,50</span></td><td>R$ 7,00</td></tr>
+          <tr><td>− Crédito + Despesa<span class="sub">− 1,00 + 0,00</span></td><td>− R$ 1,00</td></tr>
+          <tr><td>+ Frete do fardo</td><td>R$ 14,00</td></tr>
+          <tr class="total"><td>= Custo do fardo</td><td>R$ 102,5044</td></tr>
+          <tr><td>÷ Margem<span class="sub">dividido por 88%</span></td><td>÷ 0,88</td></tr>
+          <tr class="final"><td>= Preço de venda</td><td>R$ 116,48</td></tr>
+        </table>
+      </div>
+      <div style="width: 80mm; flex: none">
+        <table class="grade">
+          <tr><th>Tipo</th><th>Inteiro + quebr.</th><th>Preço</th></tr>
+          <tr><td>Tipo 1</td><td>28 + 2 kg</td><td>R$ 116,48</td></tr>
+          <tr><td>Tipo 2</td><td>26,5 + 3,5 kg</td><td>R$ 113,83</td></tr>
+          <tr><td>Tipo 3</td><td>23,5 + 6,5 kg</td><td>R$ 108,54</td></tr>
+          <tr><td>Tipo 4</td><td>10,5 + 19,5 kg</td><td>R$ 85,58</td></tr>
+        </table>
+        <p class="cap" style="text-align: left; margin-top: 3mm">A mesma conta vale para os 4 tipos; muda só a quantidade de arroz inteiro e quebrado no fardo.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Softkuka · Custo do Arroz</span><span>7</span></div>
+</section>
+
+<!-- ============ 8. TAXAS E AJUSTES ============ -->
+<section class="page">
+  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="body">
+    <span class="tag">Configuração</span>
+    <h1>Taxas e ajustes</h1>
+    <p class="lead">Os valores que mudam pouco ficam aqui, em três abas. Toque no número para mudar.</p>
+    <div class="row">
+      <div class="shot small"><div class="phone"><img src="img/ajustes-compra.png" alt="Taxas: aba Compra"></div><p class="cap">Aba Compra</p></div>
+      <div class="col">
+        <h2 style="margin-top: 0">Aba Compra</h2>
+        <table class="grade">
+          <tr><td><b>Funrural</b></td><td>% calculado por dentro</td></tr>
+          <tr><td><b>Comissão</b></td><td>% do preço do saco</td></tr>
+          <tr><td><b>CDO</b></td><td>R$ fixo por saco</td></tr>
+          <tr><td><b>Frete</b></td><td>R$ por saco</td></tr>
+        </table>
+        <h2>Aba Venda</h2>
+        <table class="grade">
+          <tr><td><b>Custo do quebrado</b></td><td>R$ por kg</td></tr>
+          <tr><td><b>Embalagem, ICMS</b></td><td>R$ por fardo</td></tr>
+          <tr><td><b>Crédito</b></td><td>R$ por fardo (desconta)</td></tr>
+          <tr><td><b>Despesa, Frete</b></td><td>R$ por fardo</td></tr>
+          <tr><td><b>Margem</b></td><td>% que divide o custo</td></tr>
+        </table>
+        <h2>Aba Fardos</h2>
+        <p>Quantos kg de arroz inteiro e de quebrado vão em cada um dos 4 tipos de fardo.</p>
+      </div>
+      <div class="shot small"><div class="phone"><img src="img/ajustes-fardos.png" alt="Taxas: aba Fardos"></div><p class="cap">Aba Fardos</p></div>
+    </div>
+    <div class="box green">
+      <h3>Voltar e valores iniciais</h3>
+      <p>Chegando pelos botões <b>Mudar custos</b> das telas de compra ou de venda, o botão <b>Voltar</b> retorna para lá. No fim da tela, <b>Voltar aos valores iniciais</b> desfaz todas as mudanças; o app pede confirmação antes.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Softkuka · Custo do Arroz</span><span>8</span></div>
+</section>
+
+<!-- ============ 9. ATUALIZAÇÕES E DADOS ============ -->
+<section class="page">
+  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="body">
+    <span class="tag">Bom saber</span>
+    <h1>Atualizações, sem internet e dados</h1>
+    <div class="row" style="margin-top: 5mm">
+      <div class="col">
+        <h2 style="margin-top: 0">Atualizações</h2>
+        <p>Quando houver uma versão nova, aparece no topo a faixa amarela <b>"Nova versão disponível. Toque aqui para atualizar."</b></p>
+        <p>Toque nela: o app recarrega já na versão nova, com todos os valores mantidos. Confira o número no rodapé do Início.</p>
+        <p>Se a faixa não aparecer logo, feche o app de vez (no iPhone, deslize de baixo para cima e arraste o app para cima) e abra de novo, com internet. A versão nova pode levar uns 10 minutos para chegar.</p>
+        <h2>Sem internet</h2>
+        <p>Depois de instalado e aberto uma vez com internet, o app funciona <b>totalmente sem internet</b>, inclusive em modo avião. A internet só é usada para buscar versões novas.</p>
+      </div>
+      <div class="shot small"><div class="phone"><img src="img/atualizacao.png" alt="Aviso de nova versão"></div><p class="cap">Faixa de nova versão</p></div>
+    </div>
+    <h2>Valores guardados</h2>
+    <p>Cada valor mudado fica guardado <b>no próprio aparelho</b>, na hora, e continua lá ao fechar o app e nas atualizações.</p>
+    <div class="box amber">
+      <h3>Atenção</h3>
+      <p>Os valores ficam <b>só naquele aparelho</b>: não passam para outro celular e não têm cópia na internet. Trocar de celular, desinstalar o app ou apagar os dados do site nos ajustes do celular faz o app voltar aos valores iniciais.</p>
+    </div>
+    <h2>Perguntas frequentes</h2>
+    <p><b>O resultado não mudou depois que alterei uma taxa.</b> Volte à tela do cálculo: ela é refeita na hora com a taxa nova.</p>
+    <p><b>Os números ficaram estranhos.</b> Em Taxas e ajustes, use <b>Voltar aos valores iniciais</b> e digite de novo os valores do dia.</p>
+  </div>
+  <div class="foot"><span>Softkuka · Custo do Arroz</span><span>9</span></div>
+</section>
+
+</body>
+</html>
