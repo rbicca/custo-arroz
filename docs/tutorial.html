@@ -11,6 +11,8 @@
 <style>
 @font-face { font-family: 'Atkinson'; font-weight: 400; src: url(../fonts/atkinson-400.woff2) format('woff2'); }
 @font-face { font-family: 'Atkinson'; font-weight: 700; src: url(../fonts/atkinson-700.woff2) format('woff2'); }
+/* Fonte da marca Softkuka (logo). Licença em fonts/ArchivoBlack-OFL.txt. */
+@font-face { font-family: 'Archivo Black'; src: url(fonts/ArchivoBlack-Regular.ttf) format('truetype'); }
 
 :root {
   --ink: #17160F;
@@ -22,8 +24,8 @@
   --brown: #8A4B12;
   --brown-soft: #F6E9DA;
   --amber: #E0A526;
-  --band: #0F1B24;   /* faixa do cabeçalho: fundo escuro para a logo clara */
-  --teal: #5BDDDD;   /* cor do "K" da Softkuka */
+  --grafite: #06090A;      /* Softkuka: fundo da assinatura principal */
+  --verde-pulso: #00D2BE;  /* Softkuka: cor de destaque */
 }
 @page { size: A4; margin: 0; }
 * { box-sizing: border-box; }
@@ -35,10 +37,15 @@ body { font-family: 'Atkinson', system-ui, sans-serif; color: var(--ink); font-s
 .page:last-child { page-break-after: auto; }
 
 /* Cabeçalho com a logo da Softkuka */
-.head { height: 22mm; background: var(--band); display: flex; align-items: center; justify-content: space-between;
-        padding: 0 16mm; border-bottom: 1.4mm solid var(--teal); }
-.head img { height: 8.5mm; display: block; }
-.head span { color: #C9D6DD; font-size: 11pt; letter-spacing: 0.02em; }
+/* Assinatura horizontal padrão do manual Softkuka 2026: monograma + "Softkuka_" sobre Grafite.
+   Monograma com 9 mm de altura (mínimo do manual: 8 mm em impresso) e respiro de meio monograma. */
+.head { height: 22mm; background: var(--grafite); display: flex; align-items: center; justify-content: space-between;
+        padding: 0 16mm; border-bottom: 1.2mm solid var(--verde-pulso); }
+.marca { display: flex; align-items: center; gap: 4.6mm; }
+.marca svg { height: 9mm; width: 17.64mm; display: block; overflow: visible; }
+.marca span { font-family: 'Archivo Black', sans-serif; font-size: 7.4mm; line-height: 1; letter-spacing: -0.01em; color: #F4F6F6; }
+.marca b { font-weight: normal; color: var(--verde-pulso); }
+.head .rotulo { color: #C8CCCE; font-size: 11pt; letter-spacing: 0.02em; }
 
 .body { padding: 11mm 16mm 0; }
 .foot { position: absolute; left: 16mm; right: 16mm; bottom: 9mm; display: flex; justify-content: space-between;
@@ -109,7 +116,7 @@ table.grade th { font-size: 10pt; color: var(--muted); font-weight: 700; }
 
 <!-- ============ 1. CAPA ============ -->
 <section class="page capa">
-  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Tutorial</span></div>
+  <div class="head"><div class="marca" role="img" aria-label="Softkuka"><svg viewBox="0 0 196 100" aria-hidden="true"><text x="-8" y="99" font-family="'Archivo Black',sans-serif" font-size="139" fill="#00D2BE">S</text><rect x="112" y="0" width="26" height="100" fill="#F4F6F6"></rect><polyline points="150,14 186,50 150,86" fill="none" stroke="#00D2BE" stroke-width="24"></polyline></svg><span aria-hidden="true">Softkuka<b>_</b></span></div><span class="rotulo">Tutorial</span></div>
   <div class="body">
     <img class="icone" src="img/icone-app.png" alt="">
     <h1>Custo do Arroz</h1>
@@ -138,7 +145,7 @@ table.grade th { font-size: 10pt; color: var(--muted); font-weight: 700; }
 
 <!-- ============ 2. INSTALAR NO IPHONE ============ -->
 <section class="page">
-  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="head"><div class="marca" role="img" aria-label="Softkuka"><svg viewBox="0 0 196 100" aria-hidden="true"><text x="-8" y="99" font-family="'Archivo Black',sans-serif" font-size="139" fill="#00D2BE">S</text><rect x="112" y="0" width="26" height="100" fill="#F4F6F6"></rect><polyline points="150,14 186,50 150,86" fill="none" stroke="#00D2BE" stroke-width="24"></polyline></svg><span aria-hidden="true">Softkuka<b>_</b></span></div><span class="rotulo">Custo do Arroz · Tutorial</span></div>
   <div class="body">
     <span class="tag">Instalação</span>
     <h1>Instalar no iPhone</h1>
@@ -177,7 +184,7 @@ table.grade th { font-size: 10pt; color: var(--muted); font-weight: 700; }
 
 <!-- ============ 3. INSTALAR NO ANDROID ============ -->
 <section class="page">
-  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="head"><div class="marca" role="img" aria-label="Softkuka"><svg viewBox="0 0 196 100" aria-hidden="true"><text x="-8" y="99" font-family="'Archivo Black',sans-serif" font-size="139" fill="#00D2BE">S</text><rect x="112" y="0" width="26" height="100" fill="#F4F6F6"></rect><polyline points="150,14 186,50 150,86" fill="none" stroke="#00D2BE" stroke-width="24"></polyline></svg><span aria-hidden="true">Softkuka<b>_</b></span></div><span class="rotulo">Custo do Arroz · Tutorial</span></div>
   <div class="body">
     <span class="tag">Instalação</span>
     <h1>Instalar no Android</h1>
@@ -207,7 +214,7 @@ table.grade th { font-size: 10pt; color: var(--muted); font-weight: 700; }
 
 <!-- ============ 4. COMO DIGITAR ============ -->
 <section class="page">
-  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="head"><div class="marca" role="img" aria-label="Softkuka"><svg viewBox="0 0 196 100" aria-hidden="true"><text x="-8" y="99" font-family="'Archivo Black',sans-serif" font-size="139" fill="#00D2BE">S</text><rect x="112" y="0" width="26" height="100" fill="#F4F6F6"></rect><polyline points="150,14 186,50 150,86" fill="none" stroke="#00D2BE" stroke-width="24"></polyline></svg><span aria-hidden="true">Softkuka<b>_</b></span></div><span class="rotulo">Custo do Arroz · Tutorial</span></div>
   <div class="body">
     <span class="tag">Uso</span>
     <h1>O Início e como digitar os valores</h1>
@@ -243,7 +250,7 @@ table.grade th { font-size: 10pt; color: var(--muted); font-weight: 700; }
 
 <!-- ============ 5. COMPRAR ARROZ EM CASCA ============ -->
 <section class="page">
-  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="head"><div class="marca" role="img" aria-label="Softkuka"><svg viewBox="0 0 196 100" aria-hidden="true"><text x="-8" y="99" font-family="'Archivo Black',sans-serif" font-size="139" fill="#00D2BE">S</text><rect x="112" y="0" width="26" height="100" fill="#F4F6F6"></rect><polyline points="150,14 186,50 150,86" fill="none" stroke="#00D2BE" stroke-width="24"></polyline></svg><span aria-hidden="true">Softkuka<b>_</b></span></div><span class="rotulo">Custo do Arroz · Tutorial</span></div>
   <div class="body">
     <span class="tag">Cálculo 1</span>
     <h1>Comprar arroz em casca</h1>
@@ -276,7 +283,7 @@ table.grade th { font-size: 10pt; color: var(--muted); font-weight: 700; }
 
 <!-- ============ 6. QUANTO PAGAR POR OUTRO LOTE ============ -->
 <section class="page">
-  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="head"><div class="marca" role="img" aria-label="Softkuka"><svg viewBox="0 0 196 100" aria-hidden="true"><text x="-8" y="99" font-family="'Archivo Black',sans-serif" font-size="139" fill="#00D2BE">S</text><rect x="112" y="0" width="26" height="100" fill="#F4F6F6"></rect><polyline points="150,14 186,50 150,86" fill="none" stroke="#00D2BE" stroke-width="24"></polyline></svg><span aria-hidden="true">Softkuka<b>_</b></span></div><span class="rotulo">Custo do Arroz · Tutorial</span></div>
   <div class="body">
     <span class="tag">Cálculo 2</span>
     <h1>Quanto pagar por outro lote</h1>
@@ -308,7 +315,7 @@ table.grade th { font-size: 10pt; color: var(--muted); font-weight: 700; }
 
 <!-- ============ 7. VENDER FARDOS ============ -->
 <section class="page">
-  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="head"><div class="marca" role="img" aria-label="Softkuka"><svg viewBox="0 0 196 100" aria-hidden="true"><text x="-8" y="99" font-family="'Archivo Black',sans-serif" font-size="139" fill="#00D2BE">S</text><rect x="112" y="0" width="26" height="100" fill="#F4F6F6"></rect><polyline points="150,14 186,50 150,86" fill="none" stroke="#00D2BE" stroke-width="24"></polyline></svg><span aria-hidden="true">Softkuka<b>_</b></span></div><span class="rotulo">Custo do Arroz · Tutorial</span></div>
   <div class="body">
     <span class="tag brown">Cálculo 3</span>
     <h1>Vender fardos</h1>
@@ -354,7 +361,7 @@ table.grade th { font-size: 10pt; color: var(--muted); font-weight: 700; }
 
 <!-- ============ 8. TAXAS E AJUSTES ============ -->
 <section class="page">
-  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="head"><div class="marca" role="img" aria-label="Softkuka"><svg viewBox="0 0 196 100" aria-hidden="true"><text x="-8" y="99" font-family="'Archivo Black',sans-serif" font-size="139" fill="#00D2BE">S</text><rect x="112" y="0" width="26" height="100" fill="#F4F6F6"></rect><polyline points="150,14 186,50 150,86" fill="none" stroke="#00D2BE" stroke-width="24"></polyline></svg><span aria-hidden="true">Softkuka<b>_</b></span></div><span class="rotulo">Custo do Arroz · Tutorial</span></div>
   <div class="body">
     <span class="tag">Configuração</span>
     <h1>Taxas e ajustes</h1>
@@ -392,7 +399,7 @@ table.grade th { font-size: 10pt; color: var(--muted); font-weight: 700; }
 
 <!-- ============ 9. ATUALIZAÇÕES E DADOS ============ -->
 <section class="page">
-  <div class="head"><img src="img/logo-softkuka.png" alt="Softkuka"><span>Custo do Arroz · Tutorial</span></div>
+  <div class="head"><div class="marca" role="img" aria-label="Softkuka"><svg viewBox="0 0 196 100" aria-hidden="true"><text x="-8" y="99" font-family="'Archivo Black',sans-serif" font-size="139" fill="#00D2BE">S</text><rect x="112" y="0" width="26" height="100" fill="#F4F6F6"></rect><polyline points="150,14 186,50 150,86" fill="none" stroke="#00D2BE" stroke-width="24"></polyline></svg><span aria-hidden="true">Softkuka<b>_</b></span></div><span class="rotulo">Custo do Arroz · Tutorial</span></div>
   <div class="body">
     <span class="tag">Bom saber</span>
     <h1>Atualizações, sem internet e dados</h1>
