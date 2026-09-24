@@ -292,7 +292,7 @@
         <div class="tabs" role="tablist">${tabBtn('compra', 'Compra')}${tabBtn('venda', 'Venda')}${tabBtn('fardos', 'Fardos')}</div>
         ${list}
         <p class="note">${ajustesTab === 'fardos' ? 'Quilos de arroz inteiro e quebrado em cada tipo de fardo.' : 'Estes valores ficam guardados neste aparelho. Só precisa mudar quando as taxas mudarem.'}</p>
-        <button class="plain danger-btn push" data-act="reset" data-id="reset">Voltar aos valores da planilha</button>`;
+        <button class="plain danger-btn push" data-act="reset" data-id="reset">Voltar aos valores iniciais</button>`;
     },
   };
 
@@ -343,7 +343,7 @@
       }
       case 'usar-compra': state.venda.custoKg = null; save(); render(); break;
       case 'reset':
-        if (confirm('Voltar todos os valores para os da planilha?')) {
+        if (confirm('Voltar todos os valores para os valores iniciais?')) {
           state = JSON.parse(JSON.stringify(DEFAULTS)); save(); render();
         }
         break;
