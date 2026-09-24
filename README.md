@@ -11,6 +11,10 @@ Depois de instalado, o app funciona **sem internet**.
 - **iPhone:** abra o endereço no **Safari** → Compartilhar → **Adicionar à Tela de Início**. Use sempre pelo ícone: no iPhone, o app instalado e o Safari guardam os valores separados.
 - **Android:** abra no **Chrome** → menu (⋮) → **Instalar app** (ou toque no aviso de instalação).
 
+## Tutorial
+
+[`docs/tutorial-custo-do-arroz.pdf`](docs/tutorial-custo-do-arroz.pdf): instalação no iPhone e no Android, uso de cada tela e a metodologia de cálculo, com exemplos. A fonte do PDF é `docs/tutorial.html` (as capturas ficam em `docs/img/`); o comando para gerar o PDF de novo está no começo desse arquivo.
+
 ## Rodar no computador
 
 Abra `index.html` no navegador (duplo clique). Aberto como arquivo, o app funciona, mas sem o modo offline. Para testar o modo offline, sirva a pasta por HTTP, por exemplo `python -m http.server 8765`, e abra `http://localhost:8765`.
