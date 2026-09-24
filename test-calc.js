@@ -40,5 +40,14 @@ confere('Ida e volta (86,50)', Calc.comparar(taxas, c.custoKg, lote.vendaQ, { in
 const esperados = [116.4823, 113.8339, 108.5371, 85.5843];
 TIPOS.forEach((tipo, i) => confere(`K${20 + i} Tipo ${i + 1}`, Calc.fardo(taxas, c.custoKg, tipo).preco, esperados[i]));
 
+// A versão do app e a do service worker precisam ser iguais, senão o celular
+// não percebe a atualização ou mostra o número errado no rodapé.
+const fs = require('fs');
+const versao = (arq) => (fs.readFileSync(__dirname + '/' + arq, 'utf8').match(/const VERSAO = '([^']+)'/) || [])[1];
+const vApp = versao('app.js'), vSw = versao('sw.js');
+const vOk = Boolean(vApp) && vApp === vSw;
+if (!vOk) falhas++;
+console.log(`${vOk ? 'OK  ' : 'ERRO'} Versão: app.js ${vApp} / sw.js ${vSw}`);
+
 console.log(falhas ? `\n${falhas} diferença(s)` : '\nTudo igual à planilha.');
 process.exit(falhas ? 1 : 0);

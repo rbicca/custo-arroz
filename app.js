@@ -4,8 +4,8 @@
   // v4: Funrural é % por dentro e CDO é R$ fixo por saco — valores antigos não servem.
   const STORAGE_KEY = 'custoArroz.v4';
 
-  // Mostrada no rodapé do Início. Aumentar a cada publicação.
-  const VERSAO = '1.0';
+  // Mostrada no rodapé do Início. Aumentar a cada publicação, junto com a de sw.js.
+  const VERSAO = '1.1';
 
   // Valores iniciais = os da planilha (versão de 24/09/2026).
   const DEFAULTS = {
@@ -457,5 +457,44 @@
     e.preventDefault();
   });
 
+  // ---------- funcionamento sem internet ----------
+  // O sw.js guarda o app no aparelho. Quando há versão nova publicada, ele a
+  // baixa em segundo plano e aqui mostramos o aviso; o toque ativa e recarrega.
+  function iniciarOffline() {
+    if (!('serviceWorker' in navigator)) return;
+    // Pede ao navegador para não apagar os valores guardados quando faltar espaço.
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+
+    const aviso = document.getElementById('update');
+    let atualizando = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (atualizando) location.reload();
+    });
+
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
+      const mostrarAviso = (novo) => {
+        aviso.hidden = false;
+        aviso.onclick = () => {
+          atualizando = true;
+          aviso.disabled = true;
+          novo.postMessage('ativar');
+        };
+      };
+      // Só avisa se já havia uma versão em uso (na primeira instalação não há o que atualizar).
+      if (reg.waiting && navigator.serviceWorker.controller) mostrarAviso(reg.waiting);
+      reg.addEventListener('updatefound', () => {
+        const novo = reg.installing;
+        novo.addEventListener('statechange', () => {
+          if (novo.state === 'installed' && navigator.serviceWorker.controller) mostrarAviso(novo);
+        });
+      });
+      // O app instalado pode ficar dias aberto: procura versão nova ao voltar para ele.
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') reg.update().catch(() => {});
+      });
+    }).catch(() => { /* aberto como arquivo local: segue sem modo offline */ });
+  }
+
   render();
+  iniciarOffline();
 })();
