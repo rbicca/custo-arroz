@@ -1,12 +1,12 @@
 (function () {
   'use strict';
 
-  // v2: Funrural passou de % para R$ por saco — valores da v1 não servem mais.
-  const STORAGE_KEY = 'custoArroz.v2';
+  // v3: CDO é % por dentro e Funrural é R$ fixo por saco — valores antigos não servem.
+  const STORAGE_KEY = 'custoArroz.v3';
 
   // Valores iniciais = os da planilha (versão de 24/09/2026).
   const DEFAULTS = {
-    taxas: { funrural: 1.65, comissao: 1, cdo: 0.93, frete: 4.5, custoQbr: 1.3, embalagem: 4.5, icms: 2.5, credito: 1, despesa: 0, freteFardo: 14, margem: 88 },
+    taxas: { funrural: 0.93, comissao: 1, cdo: 1.65, frete: 4.5, custoQbr: 1.3, embalagem: 4.5, icms: 2.5, credito: 1, despesa: 0, freteFardo: 14, margem: 88 },
     compra: { inteiro: 65, quebrado: 10, preco: 86.5, vendaQ: 0.3 },
     comparar: { inteiro: 60, quebrado: 12, frete: 3.4 },
     venda: { custoKg: null }, // null = usa o custo calculado na compra
@@ -39,7 +39,7 @@
     'venda.custoKg': { ...RS, dec: 4, step: 0.01, label: 'Custo do kg inteiro', help: 'em reais, por kg' },
     'taxas.funrural': { ...RS, label: 'Funrural', sub: 'R$ por saco' },
     'taxas.comissao': { ...PCT, step: 0.1, label: 'Comissão', sub: 'em % do preço do saco' },
-    'taxas.cdo': { ...RS, label: 'CDO', sub: 'R$ por saco' },
+    'taxas.cdo': { ...PCT, step: 0.1, max: 99, label: 'CDO', sub: 'em %, calculado por dentro' },
     'taxas.frete': { ...RS, label: 'Frete', sub: 'R$ por saco' },
     'taxas.custoQbr': { ...RS, label: 'Custo do quebrado', sub: 'R$ por kg' },
     'taxas.embalagem': { ...RS, label: 'Embalagem', sub: 'R$ por fardo' },
@@ -176,7 +176,7 @@
           { label: 'Preço do saco', sub: '50 kg de arroz em casca', value: money(c.preco) },
           { label: '+ Funrural', sub: 'valor fixo por saco', value: money(r.funrural) },
           { label: '+ Comissão', sub: fmt(t.comissao, 2, 0) + '% do preço', value: money(r.comissao) },
-          { label: '+ CDO', sub: 'valor fixo por saco', value: money(t.cdo) },
+          { label: '+ CDO', sub: fmt(t.cdo, 2, 0) + '% por dentro', value: money(r.cdo) },
           { label: '+ Frete', sub: 'valor por saco', value: money(t.frete) },
           { label: '= Custo do saco', value: money(r.custoSaco), total: true },
           { label: '− Venda do quebrado', sub: fmt(r.kgQuebrado, 2, 0) + ' kg × ' + money(c.vendaQ), value: money(r.vendaQuebrado) },
