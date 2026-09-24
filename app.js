@@ -165,7 +165,8 @@
             ? `<span class="result-value">R$ ${fmt(r.custoKg, 4)}</span>`
             : '<span class="result-value bad">Informe o % de inteiro</span>'}
           <div class="result-foot"><span>Saco sai por ${money(r.liquido)}</span><a href="#/compra-conta">Ver a conta${icon.right}</a></div>
-        </div>`;
+        </div>
+        <a class="plain" href="#/ajustes/compra">${icon.gear}Mudar custos da compra</a>`;
     },
 
     'compra-conta'() {
